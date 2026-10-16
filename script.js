@@ -84,7 +84,7 @@
 
   function resize() {
     const rect = canvas.getBoundingClientRect();
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = Math.min(window.devicePixelRatio || 1, 3);   // full sharpness on 3x phone screens
     width = rect.width; height = rect.height;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
@@ -96,7 +96,7 @@
     if (!width) return;
     ctx.clearRect(0, 0, width, height);
     const cx = Math.cos(rotX), sx = Math.sin(rotX), cy = Math.cos(rotY), sy = Math.sin(rotY);
-    const scale = Math.min(width, height) * 0.33, cam = 4.2;
+    const scale = Math.min(width, height) * 0.33 * zoom, cam = 4.2;
     for (let k = 0; k < N; k++) {
       const x = pts[k * 3], y = pts[k * 3 + 1], z = pts[k * 3 + 2];
       const x1 = x * cy + z * sy, z1 = -x * sy + z * cy;          // rotate around Y
@@ -117,37 +117,121 @@
     }
   }
 
-  // Drag to rotate (pointer events cover mouse, pen and touch).
-  let dragging = false, lastX = 0, lastY = 0;
+  // Interaction (pointer events cover mouse, pen and touch).
+  // Mouse and pen rotate on any drag. On touch the first few pixels decide: a mostly
+  // sideways swipe takes the gesture and can then tilt freely, a mostly vertical one is
+  // left to the browser so the page still scrolls. Two fingers pinch to zoom.
+  const FRAME = 1000 / 60;             // velocities are in radians per 60 Hz frame
+  const SLOP = 6;                      // px of travel before a touch picks a direction
+  const FLING_WINDOW = 80;             // ms of recent movement used for release speed
+  const MAX_FLING = 0.2;               // radians per frame, so a hard flick stays watchable
+  const ZOOM_MIN = 0.7, ZOOM_MAX = 1.15;  // max keeps the torus inside the frame
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const pointers = new Map();          // pointerId -> { x, y }
+  let mode = "idle";                   // idle | pending | rotate | pinch | ignore
+  let startX = 0, startY = 0;
+  let pendX = 0, pendY = 0;            // rotation waiting for the next frame
+  let accX = 0, accY = 0;              // total rotation in this drag
+  let history = [];                    // recent { t, x, y } samples of acc, for fling speed
+  let zoom = 1, pinchDist = 1, pinchZoom = 1;
+  const interacting = () => mode === "rotate" || mode === "pinch";
+  const sensitivity = () => 3 / Math.max(300, width);    // radians per px; a bit livelier on small screens
+  const spread = () => {
+    const [a, b] = [...pointers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y) || 1;
+  };
+
   canvas.addEventListener("pointerdown", (e) => {
-    dragging = true; lastX = e.clientX; lastY = e.clientY;
-    canvas.setPointerCapture(e.pointerId); canvas.classList.add("dragging");
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.size === 2 && e.pointerType === "touch" && mode !== "ignore") {
+      mode = "pinch"; pinchDist = spread(); pinchZoom = zoom;
+      velX = 0; velY = 0;
+    } else if (pointers.size === 1) {
+      startX = e.clientX; startY = e.clientY;
+      accX = accY = 0; history = [{ t: e.timeStamp, x: 0, y: 0 }];
+      mode = e.pointerType === "touch" ? "pending" : "rotate";
+      if (mode === "rotate") { canvas.setPointerCapture(e.pointerId); canvas.classList.add("dragging"); }
+    }
     start();
   });
-  canvas.addEventListener("pointermove", (e) => {
-    if (!dragging) return;
-    const dx = e.clientX - lastX, dy = e.clientY - lastY;
-    lastX = e.clientX; lastY = e.clientY;
-    velY = dx * 0.006; velX = dy * 0.006;
-    rotY += velY; rotX += velX;
-    if (reduceMotion) draw();
-  });
-  const endDrag = () => { dragging = false; canvas.classList.remove("dragging"); };
-  canvas.addEventListener("pointerup", endDrag);
-  canvas.addEventListener("pointercancel", endDrag);
 
-  // Animation loop: gentle auto-spin, eased back after a drag. Paused when off screen.
-  let raf = 0, visible = true;
-  function frame() {
+  canvas.addEventListener("pointermove", (e) => {
+    const p = pointers.get(e.pointerId);
+    if (!p) return;
+    let dx = e.clientX - p.x, dy = e.clientY - p.y;
+    p.x = e.clientX; p.y = e.clientY;
+
+    if (mode === "pinch") {
+      if (pointers.size === 2) zoom = clamp(pinchZoom * spread() / pinchDist, ZOOM_MIN, ZOOM_MAX);
+      start();
+      return;
+    }
+    if (mode === "pending") {
+      dx = e.clientX - startX; dy = e.clientY - startY;   // count the slop so nothing is lost
+      if (Math.hypot(dx, dy) < SLOP) return;
+      mode = Math.abs(dx) > Math.abs(dy) ? "rotate" : "ignore";
+      if (mode === "rotate") canvas.classList.add("dragging");
+    }
+    if (mode !== "rotate") return;
+
+    const k = sensitivity();
+    pendY += dx * k; pendX += dy * k;
+    accY += dx * k; accX += dy * k;
+    history.push({ t: e.timeStamp, x: accX, y: accY });
+    while (history.length > 2 && e.timeStamp - history[0].t > FLING_WINDOW) history.shift();
+    start();
+  });
+
+  // Once the torus owns a touch gesture, stop the page from scrolling or zooming with it.
+  // pointermove runs first for the same movement, so the mode is already decided here.
+  canvas.addEventListener("touchmove", (e) => { if (interacting()) e.preventDefault(); }, { passive: false });
+  canvas.addEventListener("gesturestart", (e) => e.preventDefault());   // iOS page pinch
+
+  const release = (e) => {
+    if (!pointers.delete(e.pointerId)) return;
+    if (mode === "rotate" && pointers.size === 0) {
+      // Release speed is the average over the last FLING_WINDOW ms, so a flick carries
+      // momentum and a finger held still before lifting does not.
+      const recent = history.filter((h) => e.timeStamp - h.t <= FLING_WINDOW);
+      if (!reduceMotion && recent.length >= 2) {
+        const a = recent[0], b = recent[recent.length - 1];
+        const dt = Math.max(e.timeStamp - a.t, FRAME);
+        velX = clamp((b.x - a.x) / dt * FRAME, -MAX_FLING, MAX_FLING);
+        velY = clamp((b.y - a.y) / dt * FRAME, -MAX_FLING, MAX_FLING);
+      } else {
+        velX = 0; velY = 0;
+      }
+    }
+    if (pointers.size === 0) { mode = "idle"; canvas.classList.remove("dragging"); }
+    else if (mode === "pinch") mode = "ignore";   // one finger left: wait for it to lift
+    start();
+  };
+  canvas.addEventListener("pointerup", release);
+  canvas.addEventListener("pointercancel", release);
+
+  const hint = document.querySelector(".drag-hint");
+  if (hint && window.matchMedia("(pointer: coarse)").matches) {
+    hint.textContent = "Swipe sideways to rotate, pinch to zoom.";
+  }
+
+  // Animation loop: gentle auto-spin, eased back after a drag. Steps are scaled by elapsed
+  // time so 60 Hz and 120 Hz screens feel the same. Paused when off screen.
+  let raf = 0, visible = true, lastTime = 0;
+  function frame(now) {
     raf = 0;
-    if (!dragging) {
-      velX *= 0.94;
-      velY += ((reduceMotion ? 0 : AUTO_Y) - velY) * 0.03;
-      rotX += velX; rotY += velY;
+    const f = lastTime ? Math.min(3, (now - lastTime) / FRAME) : 1;   // 60 Hz frames elapsed
+    lastTime = now;
+    rotX += pendX; rotY += pendY;
+    pendX = pendY = 0;
+    if (!interacting()) {
+      velX *= Math.pow(0.94, f);
+      velY += ((reduceMotion ? 0 : AUTO_Y) - velY) * (1 - Math.pow(0.97, f));
+      rotX += velX * f; rotY += velY * f;
     }
     draw();
-    const moving = dragging || Math.abs(velX) > 0.0002 || Math.abs(velY) > 0.0002;
+    const moving = interacting() || Math.abs(velX) > 0.0002 || Math.abs(velY) > 0.0002;
     if (visible && moving) raf = requestAnimationFrame(frame);
+    else lastTime = 0;
   }
   function start() { if (!raf && visible) raf = requestAnimationFrame(frame); }
 
