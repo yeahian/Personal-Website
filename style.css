@@ -179,7 +179,11 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
   font-size: 0.8125rem; font-weight: 500; line-height: 1;
   padding: 7px 10px; border-radius: 999px;
   color: var(--text-color-1); background: var(--surface-2); border: 1px solid var(--line);
+  cursor: default;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
+/* Neutral hover (chips are labels, not links, so they stay out of the purple action color). */
+.chips li:hover { background: #34343A; border-color: #55555E; color: #fff; }
 
 /* ---------- Timeline (a real sequence, so it gets a line and markers) ---------- */
 .timeline { position: relative; }
@@ -206,7 +210,7 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 }
 
 /* ---------- Research ---------- */
-/* Featured work (the paper and the flagship project) shares one card surface. */
+/* The paper and every project share one card surface. */
 .feature {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 28px;
@@ -221,12 +225,11 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 .paper-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
 /* ---------- Projects ---------- */
-.project { padding: 28px 0; border-bottom: 1px solid var(--line); }
-.project:first-child { padding-top: 0; }
-.project.feature { padding: 28px; border: 1px solid var(--line); margin-bottom: 4px; }
-.project.has-thumb { display: grid; grid-template-columns: minmax(0, 1fr) 168px; gap: 32px; align-items: start; }
-.project-main > p { margin: 10px 0 16px; max-width: 46em; color: var(--text-muted); }
-.project-thumb { display: block; border-radius: var(--radius-small); margin-top: 4px; }
+/* AeroAtlas spans the full width; the smaller projects sit side by side. */
+.projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.project { display: flex; flex-direction: column; }
+.project-wide { grid-column: 1 / -1; }
+.project > .chips { margin-top: auto; }   /* chips line up along the bottom of side-by-side cards */
 .project-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
 .project-award { color: var(--text-highlights); font-size: var(--fs-sm); font-weight: 500; }
 .project-link { font-size: var(--fs-sm); font-weight: 500; }
@@ -237,7 +240,7 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 }
 .project-gallery a { display: block; border-radius: var(--radius-small); }
 
-/* Project images: one frame for gallery shots and row thumbnails. */
+/* Project images share one frame. */
 .shot {
   width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: 50% 0;
   border-radius: var(--radius-small); border: 1px solid var(--line); background: var(--surface);
@@ -245,7 +248,6 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
   transition: border-color .15s ease, filter .15s ease;
 }
 .shot.photo { object-position: 50% 70%; }
-.project-thumb .shot { aspect-ratio: 1 / 1; }   /* square plot: keep start and goal in view */
 a:hover > .shot { border-color: var(--line-strong); filter: none; }
 .project-gallery p { margin-top: 8px; color: var(--text-faint); }
 .more-link { margin-top: 24px; font-size: var(--fs-sm); font-weight: 500; }
@@ -284,7 +286,7 @@ a:hover > .shot { border-color: var(--line-strong); filter: none; }
   .hero { grid-template-columns: 1fr; gap: 24px; }
   .hero-figure { max-width: 440px; width: 100%; margin-inline: auto; }
   .paper { grid-template-columns: 1fr; gap: 24px; }
-  .feature, .project.feature { padding: 20px; }
+  .feature { padding: 20px; }
   .paper-figure { max-width: 360px; }
 }
 
@@ -305,8 +307,7 @@ a:hover > .shot { border-color: var(--line-strong); filter: none; }
   .tl-when { padding-left: 28px; border-left: 1px solid var(--line-strong); padding-bottom: 4px; }
   .tl-item:last-child .tl-when { border-left-color: var(--line-strong); }
 
-  .project.has-thumb { grid-template-columns: 1fr; gap: 16px; }
-  .project-thumb { margin-top: 0; max-width: 200px; }
+  .projects { grid-template-columns: 1fr; gap: 12px; }
   .project-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
   .project-gallery li:first-child { grid-column: 1 / -1; }
 
