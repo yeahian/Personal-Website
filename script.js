@@ -197,7 +197,7 @@
     ctx.clearRect(0, 0, width, height);
     const cx = Math.cos(rotX), sx = Math.sin(rotX), cy = Math.cos(rotY), sy = Math.sin(rotY);
     const scale = Math.min(width, height) * 0.33 * zoom, cam = 4.2;
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
     for (let k = 0; k < N; k++) {
       const x = pts[k * 3], y = pts[k * 3 + 1], z = pts[k * 3 + 2];
       const x1 = x * cy + z * sy, z1 = -x * sy + z * cy;          // rotate around Y
@@ -205,13 +205,14 @@
       const p = cam / (cam + z2);
       const px = x1 * scale * p, py = y2 * scale * p;
       proj[k * 3] = px; proj[k * 3 + 1] = py; proj[k * 3 + 2] = z2;
-      if (px < minX) minX = px; if (px > maxX) maxX = px;
       if (py < minY) minY = py; if (py > maxY) maxY = py;
       order[k] = k;
     }
-    // Center on the drawn shape, not the torus origin: perspective makes the near rim
-    // larger, which would otherwise push the shape toward one edge of the frame.
-    const ox = width / 2 - (minX + maxX) / 2, oy = height / 2 - (minY + maxY) / 2;
+    // Vertically, center on the drawn shape: perspective makes the near rim larger, which
+    // would otherwise push it toward the top or bottom of the frame. Horizontally, keep the
+    // spin axis at the center, so a lopsided shape (the mug's handle) orbits around it like
+    // on a turntable instead of dragging the whole shape side to side as it turns.
+    const ox = width / 2, oy = height / 2 - (minY + maxY) / 2;
     order.sort((a, b) => proj[b * 3 + 2] - proj[a * 3 + 2]);      // far first
     for (let n = 0; n < N; n++) {
       const k = order[n], z = proj[k * 3 + 2];
