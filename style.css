@@ -131,6 +131,15 @@ a:hover { text-decoration: underline; }
   padding-top: clamp(2.5rem, 5vw, 4.5rem);
   padding-bottom: 0;   /* the next section's top padding sets the gap below */
 }
+/* Side by side, the hero fills the first screen except for a ~150px strip at the bottom,
+   where the Experience heading and the top of its first entry peek in as a cue to scroll.
+   Short screens fall back to the content's own height. */
+@media (min-width: 901px) {
+  .hero {
+    min-height: calc(100vh - 64px - var(--section-gap) - 150px);
+    min-height: calc(100svh - 64px - var(--section-gap) - 150px);
+  }
+}
 
 .headshot {
   width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
@@ -221,7 +230,7 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
   border-radius: 50%; background: var(--second-accent);
 }
 
-/* ---------- Research ---------- */
+/* ---------- Publications ---------- */
 /* The paper and every project share one card surface. */
 .feature {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
@@ -230,7 +239,14 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 .paper {
   display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 40px; align-items: center;
 }
-.paper-figure img { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; border-radius: var(--radius-small); background: #000; }
+/* First page of the paper, framed and dimmed like the project screenshots. */
+.paper-figure a { display: block; border-radius: var(--radius-small); }
+.paper-figure img {
+  width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 0;
+  border-radius: var(--radius-small); border: 1px solid var(--line); background: #fff;
+  filter: brightness(.86); transition: border-color .15s ease, filter .15s ease;
+}
+.paper-figure a:hover img { border-color: var(--line-strong); filter: none; }
 .paper-venue { color: var(--second-accent); margin-bottom: 10px; }
 .paper-body h3 { font-size: var(--fs-lg); line-height: 1.25; letter-spacing: -0.015em; }
 .paper-body > p:not(.paper-venue) { margin-top: 14px; color: var(--text-muted); max-width: 40em; }
