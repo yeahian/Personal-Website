@@ -15,7 +15,7 @@ script.js                   mobile menu, active-section nav, hero point-cloud to
 llms.txt                    plain-text profile summary for AI agents
 assets/fonts/               IBM Plex Sans (self-hosted, SIL Open Font License)
 assets/docs/                resume PDF linked from the site
-images/                     headshot and research figure
+images/                     headshot, research figure, favicons, social preview image (og-image.png)
 ```
 
 ## Run it locally

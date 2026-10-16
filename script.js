@@ -27,15 +27,22 @@
   /* ---------- Highlight the section in view ---------- */
   const navLinks = [...document.querySelectorAll('.nav-links a[href^="#"]')];
   const sections = navLinks.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
-  if ("IntersectionObserver" in window) {
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id));
-      });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    sections.forEach((s) => spy.observe(s));
-  }
+  // The active section is the last one whose top has passed 40% of the viewport,
+  // or the last section once the page is scrolled to the bottom.
+  let spyQueued = false;
+  const updateActive = () => {
+    spyQueued = false;
+    const line = window.innerHeight * 0.4;
+    const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+    let current = null;
+    sections.forEach((s) => { if (s.getBoundingClientRect().top <= line) current = s; });
+    if (atBottom && sections.length) current = sections[sections.length - 1];
+    navLinks.forEach((a) => a.classList.toggle("active", !!current && a.getAttribute("href") === "#" + current.id));
+  };
+  const queueSpy = () => { if (!spyQueued) { spyQueued = true; requestAnimationFrame(updateActive); } };
+  updateActive();
+  window.addEventListener("scroll", queueSpy, { passive: true });
+  window.addEventListener("resize", queueSpy);
 
   /* ---------- Hero: point cloud sampled from a torus ---------- */
   const canvas = document.getElementById("torus");
@@ -68,7 +75,7 @@
     return `rgba(${c[0]},${c[1]},${c[2]},${1 - t * 0.35})`;
   });
 
-  let rotX = -0.5, rotY = 0.4;      // current orientation
+  let rotX = -0.95, rotY = 0.4;     // current orientation (tilted enough to show the hole)
   let velX = 0, velY = 0.0035;       // spin per frame
   const AUTO_Y = 0.0035;
   let width = 0, height = 0, dpr = 1;
@@ -89,7 +96,7 @@
     if (!width) return;
     ctx.clearRect(0, 0, width, height);
     const cx = Math.cos(rotX), sx = Math.sin(rotX), cy = Math.cos(rotY), sy = Math.sin(rotY);
-    const scale = Math.min(width, height) * 0.29, cam = 4.2;
+    const scale = Math.min(width, height) * 0.33, cam = 4.2;
     for (let k = 0; k < N; k++) {
       const x = pts[k * 3], y = pts[k * 3 + 1], z = pts[k * 3 + 2];
       const x1 = x * cy + z * sy, z1 = -x * sy + z * cy;          // rotate around Y

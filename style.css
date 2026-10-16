@@ -152,6 +152,8 @@ a:hover { text-decoration: underline; }
 
 /* ---------- Sections ---------- */
 .section { padding-top: var(--section-gap); }
+/* Nav jumps land on the heading, not on the empty padding above it. */
+.section[id] { scroll-margin-top: calc(24px - var(--section-gap)); }
 .section h2 {
   font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.02em; color: #F2F2F2;
   padding-bottom: 14px; margin-bottom: 36px; border-bottom: 1px solid var(--line);
@@ -202,8 +204,8 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 .paper-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 
 /* ---------- Projects ---------- */
-.projects { border-top: 1px solid var(--line); }
 .project { padding: 28px 0; border-bottom: 1px solid var(--line); }
+.project:first-child { padding-top: 0; }
 .project-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
 .project-award { color: var(--text-highlights); font-size: var(--fs-sm); font-weight: 500; }
 .project-link { font-size: var(--fs-sm); font-weight: 500; }
@@ -227,9 +229,15 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 
 /* ---------- Footer ---------- */
 .site-footer {
+  position: relative;
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
   margin-top: var(--section-gap); padding-top: 24px; padding-bottom: 40px;
-  border-top: 1px solid var(--line); color: var(--text-faint); font-size: var(--fs-sm);
+  color: var(--text-faint); font-size: var(--fs-sm);
+}
+/* Rule spans the content width, matching the section heading rules. */
+.site-footer::before {
+  content: ""; position: absolute; top: 0; left: 24px; right: 24px;
+  border-top: 1px solid var(--line);
 }
 .site-footer a { color: var(--text-muted); }
 
