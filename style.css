@@ -127,7 +127,7 @@ a:hover { text-decoration: underline; }
 }
 
 .headshot {
-  width: 88px; height: 88px; border-radius: 50%; object-fit: cover; object-position: 50% 18%;
+  width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
   border: 2px solid var(--line-strong); margin-bottom: 28px;
 }
 
