@@ -192,15 +192,18 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
   position: relative; padding-bottom: 44px;
 }
 .tl-item:last-child { padding-bottom: 0; }
-.tl-when { color: var(--second-accent); padding-top: 5px; }
+.tl-when { color: var(--second-accent); padding-top: 14px; }   /* centered on the 48px logo row */
 .tl-body { position: relative; padding-left: 28px; border-left: 1px solid var(--line-strong); }
 .tl-item:last-child .tl-body { border-left-color: transparent; }
 .tl-body::before {
-  content: ""; position: absolute; left: -6px; top: 8px;
+  content: ""; position: absolute; left: -6px; top: 18px;
   width: 11px; height: 11px; border-radius: 50%;
   background: var(--main-color); border: 2px solid var(--second-accent);
 }
 .tl-item:first-child .tl-body::before { background: var(--second-accent); }
+.tl-head { display: flex; align-items: flex-start; gap: 14px; }   /* logo stays level with the timeline dot */
+/* Employer and school marks, converted to light gray so they sit quietly on the dark page. */
+.tl-logo { width: 48px; height: 48px; flex-shrink: 0; opacity: .8; }
 .tl-org { color: var(--text-muted); font-size: var(--fs-sm); margin-top: 2px; }
 .tl-points { margin: 14px 0 16px; max-width: 44em; }
 .tl-points li { position: relative; padding-left: 18px; margin-bottom: 6px; color: var(--text-color-1); }
@@ -304,7 +307,7 @@ a:hover > .shot { border-color: var(--line-strong); filter: none; }
   .nav-links .btn { margin-top: 10px; }
 
   .tl-item { grid-template-columns: 1fr; gap: 4px; padding-bottom: 36px; }
-  .tl-when { padding-left: 28px; border-left: 1px solid var(--line-strong); padding-bottom: 4px; }
+  .tl-when { padding-left: 28px; border-left: 1px solid var(--line-strong); padding-top: 0; padding-bottom: 4px; }
   .tl-item:last-child .tl-when { border-left-color: var(--line-strong); }
 
   .projects { grid-template-columns: 1fr; gap: 12px; }
