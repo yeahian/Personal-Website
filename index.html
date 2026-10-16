@@ -86,10 +86,11 @@
       </div>
 
       <figure class="hero-figure">
-        <canvas id="torus" role="img" aria-label="A rotating point cloud sampled from a torus"></canvas>
+        <canvas id="torus" role="button" tabindex="0" aria-label="Point cloud of a torus. Press to change shape."></canvas>
         <figcaption>
-          A point cloud sampled from a torus. TopoRec recognizes shapes like this by their holes.
-          <span class="drag-hint">Drag to rotate.</span>
+          <span class="shape-label" aria-live="polite">Torus · 1 hole</span>
+          TopoRec tells shapes apart by their holes.
+          <span class="drag-hint">Click to change shape, drag to rotate.</span>
         </figcaption>
       </figure>
     </section>
@@ -114,6 +115,19 @@
               <li>Architected selection-driven generation of HVAC unit schematic and wiring diagrams, bills of materials, parts and points lists, and sequences of operation.</li>
               <li>Architect engineering-grade simulation tools for building system design and validation.</li>
             </ul>
+            <figure class="flow" aria-label="Diagram: one HVAC unit selection generates schematic and wiring diagrams, bills of materials, parts and points lists, and sequences of operation">
+              <div class="flow-row" aria-hidden="true">
+                <span class="flow-node flow-input">HVAC unit selection</span>
+                <span class="flow-link"></span>
+                <ul class="flow-out">
+                  <li><span class="flow-node">Schematic &amp; wiring diagrams</span></li>
+                  <li><span class="flow-node">Bills of materials</span></li>
+                  <li><span class="flow-node">Parts &amp; points lists</span></li>
+                  <li><span class="flow-node">Sequences of operation</span></li>
+                </ul>
+              </div>
+              <figcaption>Illustration of the workflow, not actual project output.</figcaption>
+            </figure>
             <ul class="chips" aria-label="Technologies">
               <li>C#</li><li>.NET</li><li>XAML</li><li>AutoCAD</li>
             </ul>
@@ -270,6 +284,7 @@
     <!-- Skills -->
     <section class="section wrap" id="skills" aria-labelledby="skills-title">
       <h2 id="skills-title">Skills</h2>
+      <p class="skills-note">Point at a skill to see everywhere it shows up.</p>
 
       <dl class="skills">
         <div class="skill-group">

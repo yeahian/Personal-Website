@@ -44,27 +44,108 @@
   window.addEventListener("scroll", queueSpy, { passive: true });
   window.addEventListener("resize", queueSpy);
 
+  /* ---------- Linked skills: point at a pill to light up everywhere that skill appears ---------- */
+  const chipKey = (li) => li.textContent.trim().toLowerCase();
+  const chips = [...document.querySelectorAll(".chips li")];
+  const byKey = new Map();
+  chips.forEach((li) => {
+    const k = chipKey(li);
+    if (!byKey.has(k)) byKey.set(k, []);
+    byKey.get(k).push(li);
+  });
+  let litKey = null;
+  const light = (key) => {
+    if (key === litKey) return;
+    if (litKey) byKey.get(litKey).forEach((li) => li.classList.remove("is-linked"));
+    litKey = key;
+    if (key) byKey.get(key).forEach((li) => li.classList.add("is-linked"));
+    document.body.classList.toggle("skills-linked", !!key);
+  };
+  chips.forEach((li) => {
+    const k = chipKey(li);
+    if (byKey.get(k).length < 2) return;   // only skills used in more than one place
+    li.classList.add("is-linkable");
+    // Mouse: follow the pointer. Touch and pen: tap to toggle, tap elsewhere to clear.
+    li.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") light(k); });
+    li.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") light(null); });
+    li.addEventListener("pointerup", (e) => { if (e.pointerType !== "mouse") light(litKey === k ? null : k); });
+  });
+  document.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "mouse" && litKey && !e.target.closest(".chips li.is-linkable")) light(null);
+  });
+  const skillsNote = document.querySelector(".skills-note");
+  if (skillsNote && window.matchMedia("(pointer: coarse)").matches) {
+    skillsNote.textContent = "Tap a skill to see everywhere it shows up.";
+  }
+
   /* ---------- Hero: point cloud sampled from a torus ---------- */
   const canvas = document.getElementById("torus");
   if (!canvas || !canvas.getContext) return;
   const ctx = canvas.getContext("2d");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Sample points uniformly over the torus surface (rejection sampling on the tube angle),
-  // with a little jitter so it reads like a scanned point cloud rather than a mesh.
-  const R = 1.0, r = 0.42, N = 3400;
-  const pts = new Float32Array(N * 3);
-  let i = 0;
-  while (i < N) {
-    const u = Math.random() * Math.PI * 2;
-    const v = Math.random() * Math.PI * 2;
-    if (Math.random() * (R + r) > R + r * Math.cos(v)) continue; // area-uniform
-    const j = () => (Math.random() - 0.5) * 0.025;
-    pts[i * 3]     = (R + r * Math.cos(v)) * Math.cos(u) + j();
-    pts[i * 3 + 1] = r * Math.sin(v) + j();
-    pts[i * 3 + 2] = (R + r * Math.cos(v)) * Math.sin(u) + j();
-    i++;
+  // Three shapes sampled with the same number of points, so the cloud can morph between them:
+  // a torus (1 hole), a sphere (0 holes), and a coffee mug (1 hole, the classic topology joke:
+  // to a topologist a mug and a donut are the same shape). A little jitter makes each read
+  // like a scanned point cloud rather than a mesh.
+  const N = 3400, TAU = Math.PI * 2;
+  const jit = () => (Math.random() - 0.5) * 0.025;
+
+  function sampleTorus() {
+    const R = 1.0, r = 0.42, out = [];
+    while (out.length < N) {
+      const u = Math.random() * TAU, v = Math.random() * TAU;
+      if (Math.random() * (R + r) > R + r * Math.cos(v)) continue;   // area-uniform
+      out.push([(R + r * Math.cos(v)) * Math.cos(u), r * Math.sin(v), (R + r * Math.cos(v)) * Math.sin(u)]);
+    }
+    return out;
   }
+  function sampleSphere() {
+    const Rs = 1.12, out = [];
+    while (out.length < N) {
+      const y = Math.random() * 2 - 1, a = Math.random() * TAU, s = Math.sqrt(1 - y * y);
+      out.push([Rs * s * Math.cos(a), Rs * y, Rs * s * Math.sin(a)]);
+    }
+    return out;
+  }
+  function sampleMug() {
+    const Rm = 0.62, H = 0.75;                       // body radius and half height
+    const hc = Rm + 0.28, hr = 0.36, ht = 0.09;      // handle ring center, radius, tube radius
+    const nWall = Math.round(N * 0.64), nBottom = Math.round(N * 0.14), out = [];
+    while (out.length < nWall) {
+      const a = Math.random() * TAU;
+      out.push([Rm * Math.cos(a), -H + Math.random() * 2 * H, Rm * Math.sin(a)]);
+    }
+    while (out.length < nWall + nBottom) {         // base at +y, which the projection draws lower
+      const rr = Rm * Math.sqrt(Math.random()), a = Math.random() * TAU;
+      out.push([rr * Math.cos(a), H, rr * Math.sin(a)]);
+    }
+    while (out.length < N) {                         // the part of the ring outside the body
+      const u = Math.random() * TAU, v = Math.random() * TAU;
+      if (hc + hr * Math.cos(u) < Rm + 0.02) continue;
+      if (Math.random() * (hr + ht) > hr + ht * Math.cos(v)) continue;
+      out.push([hc + (hr + ht * Math.cos(v)) * Math.cos(u), (hr + ht * Math.cos(v)) * Math.sin(u), ht * Math.sin(v)]);
+    }
+    return out;
+  }
+  // Every shape's points are ordered the same way (by angle around the vertical axis, then
+  // height), so during a morph each point travels a short way to its partner instead of scattering.
+  function pack(list) {
+    const SLICES = 48;
+    const key = (p) => Math.floor(((Math.atan2(p[2], p[0]) + Math.PI) / TAU) * SLICES);
+    list.sort((a, b) => key(a) - key(b) || a[1] - b[1]);
+    const arr = new Float32Array(N * 3);
+    list.forEach((p, k) => { arr[k * 3] = p[0] + jit(); arr[k * 3 + 1] = p[1] + jit(); arr[k * 3 + 2] = p[2] + jit(); });
+    return arr;
+  }
+  const SHAPES = [
+    { name: "Torus", holes: 1, note: "", pts: pack(sampleTorus()) },
+    { name: "Sphere", holes: 0, note: "", pts: pack(sampleSphere()) },
+    { name: "Coffee mug", holes: 1, note: " (same as the torus)", pts: pack(sampleMug()) },
+  ];
+  const pts = new Float32Array(SHAPES[0].pts);       // what is drawn; eased between shapes
+  const MORPH_MS = 1400;
+  let shapeIndex = 0, morph = null;                  // morph: { from: Float32Array, to, start }
 
   // Depth colour ramp: teal (near) -> purple (far), both from the site palette.
   const near = [3, 218, 197], far = [187, 134, 252];
@@ -75,7 +156,7 @@
     return `rgba(${c[0]},${c[1]},${c[2]},${1 - t * 0.35})`;
   });
 
-  let rotX = -0.95, rotY = 0.4;     // current orientation (tilted enough to show the hole)
+  let rotX = 0.95, rotY = 0.4;      // current orientation: viewed from above, tilted enough to show the hole
   let velX = 0, velY = 0.0035;       // spin per frame
   const AUTO_Y = 0.0035;
   let width = 0, height = 0, dpr = 1;
@@ -139,6 +220,7 @@
   let accX = 0, accY = 0;              // total rotation in this drag
   let history = [];                    // recent { t, x, y } samples of acc, for fling speed
   let zoom = 1, pinchDist = 1, pinchZoom = 1;
+  let downTime = 0, multiTouch = false;   // for telling a tap (change shape) from a drag
   const interacting = () => mode === "rotate" || mode === "pinch";
   const sensitivity = () => 3 / Math.max(300, width);    // radians per px; a bit livelier on small screens
   const spread = () => {
@@ -150,9 +232,10 @@
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.size === 2 && e.pointerType === "touch" && mode !== "ignore") {
       mode = "pinch"; pinchDist = spread(); pinchZoom = zoom;
-      velX = 0; velY = 0;
+      velX = 0; velY = 0; multiTouch = true;
     } else if (pointers.size === 1) {
       startX = e.clientX; startY = e.clientY;
+      downTime = e.timeStamp; multiTouch = false;
       accX = accY = 0; history = [{ t: e.timeStamp, x: 0, y: 0 }];
       mode = e.pointerType === "touch" ? "pending" : "rotate";
       if (mode === "rotate") { canvas.setPointerCapture(e.pointerId); canvas.classList.add("dragging"); }
@@ -194,6 +277,10 @@
 
   const release = (e) => {
     if (!pointers.delete(e.pointerId)) return;
+    // A quick single-pointer press that barely moved is a tap (or click): change shape.
+    const tap = e.type === "pointerup" && pointers.size === 0 && !multiTouch &&
+      (mode === "pending" || mode === "rotate") &&
+      Math.hypot(e.clientX - startX, e.clientY - startY) < SLOP && e.timeStamp - downTime < 500;
     if (mode === "rotate" && pointers.size === 0) {
       // Release speed is the average over the last FLING_WINDOW ms, so a flick carries
       // momentum and a finger held still before lifting does not.
@@ -209,14 +296,40 @@
     }
     if (pointers.size === 0) { mode = "idle"; canvas.classList.remove("dragging"); }
     else if (mode === "pinch") mode = "ignore";   // one finger left: wait for it to lift
+    if (tap) nextShape();
     start();
   };
   canvas.addEventListener("pointerup", release);
   canvas.addEventListener("pointercancel", release);
+  canvas.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); nextShape(); }
+  });
+
+  // Shape changes: ease every point from where it is now to its partner in the next shape,
+  // and say what the shape is and how many holes it has.
+  const shapeLabel = document.querySelector(".shape-label");
+  function describe(s) { return `${s.name} · ${s.holes} hole${s.holes === 1 ? "" : "s"}${s.note}`; }
+  function nextShape() {
+    shapeIndex = (shapeIndex + 1) % SHAPES.length;
+    const s = SHAPES[shapeIndex];
+    if (shapeLabel) shapeLabel.textContent = describe(s);
+    canvas.setAttribute("aria-label", `Point cloud of a ${s.name.toLowerCase()}. Press to change shape.`);
+    if (reduceMotion) { pts.set(s.pts); morph = null; draw(); return; }
+    morph = { from: Float32Array.from(pts), to: s.pts, start: performance.now() };
+    start();
+  }
+  function stepMorph(now) {
+    if (!morph) return;
+    const t = Math.min(1, (now - morph.start) / MORPH_MS);
+    const e = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // ease in-out
+    const a = morph.from, b = morph.to;
+    for (let k = 0; k < pts.length; k++) pts[k] = a[k] + (b[k] - a[k]) * e;
+    if (t >= 1) morph = null;
+  }
 
   const hint = document.querySelector(".drag-hint");
   if (hint && window.matchMedia("(pointer: coarse)").matches) {
-    hint.textContent = "Swipe sideways to rotate, pinch to zoom.";
+    hint.textContent = "Tap to change shape, swipe sideways to rotate, pinch to zoom.";
   }
 
   // Animation loop: gentle auto-spin, eased back after a drag. Steps are scaled by elapsed
@@ -233,8 +346,9 @@
       velY += ((reduceMotion ? 0 : AUTO_Y) - velY) * (1 - Math.pow(0.97, f));
       rotX += velX * f; rotY += velY * f;
     }
+    stepMorph(now);
     draw();
-    const moving = interacting() || Math.abs(velX) > 0.0002 || Math.abs(velY) > 0.0002;
+    const moving = interacting() || !!morph || Math.abs(velX) > 0.0002 || Math.abs(velY) > 0.0002;
     if (visible && moving) raf = requestAnimationFrame(frame);
     else lastTime = 0;
   }

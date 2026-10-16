@@ -166,6 +166,7 @@ a:hover { text-decoration: underline; }
   margin-top: 6px; color: var(--text-faint); text-align: center;
   max-width: 40em; margin-inline: auto;
 }
+.shape-label { display: block; color: var(--text-muted); margin-bottom: 2px; }
 /* Side by side, the caption hangs below the torus so the torus itself lines up
    with the center of the text column. */
 @media (min-width: 901px) {
@@ -174,7 +175,7 @@ a:hover { text-decoration: underline; }
 
 /* Metadata (dates, venue, captions, labels) is set in mono, the editor-style accent. */
 
-.hero-figure figcaption, .tl-when, .paper-venue, .project-gallery p, .contact-list span {
+.hero-figure figcaption, .tl-when, .paper-venue, .project-gallery p, .contact-list span, .skills-note {
   font-family: var(--font-mono); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0;
 }
 
@@ -183,8 +184,18 @@ a:hover { text-decoration: underline; }
 /* Nav jumps land on the heading, not on the empty padding above it. */
 .section[id] { scroll-margin-top: calc(24px - var(--section-gap)); }
 .section h2 {
+  position: relative;
   font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.02em; color: #F2F2F2;
-  padding-bottom: 14px; margin-bottom: 36px; border-bottom: 1px solid var(--line);
+  padding-bottom: 14px; margin-bottom: 36px;
+}
+/* Heading rule drawn as a scanned point cloud: a fixed scatter of dots (repeating tile)
+   shaded with the torus colors, teal to purple, settling into the plain line gray. */
+.section h2::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 7px;
+  background: linear-gradient(90deg, var(--second-accent), var(--accent-color) 40%, var(--line-strong) 75%);
+  -webkit-mask: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="180" height="7"%3E%3Ccircle cx="1.9" cy="3.8" r="1.10"/%3E%3Ccircle cx="7.3" cy="3.5" r="0.90"/%3E%3Ccircle cx="11.4" cy="3.6" r="0.93"/%3E%3Ccircle cx="19.2" cy="1.6" r="0.73"/%3E%3Ccircle cx="21.6" cy="4.9" r="0.97"/%3E%3Ccircle cx="26.6" cy="5.7" r="1.13"/%3E%3Ccircle cx="34.5" cy="4.0" r="0.64"/%3E%3Ccircle cx="37.1" cy="3.6" r="0.59"/%3E%3Ccircle cx="43.2" cy="2.3" r="0.57"/%3E%3Ccircle cx="49.6" cy="3.2" r="1.06"/%3E%3Ccircle cx="55.1" cy="4.1" r="0.85"/%3E%3Ccircle cx="61.0" cy="3.3" r="0.72"/%3E%3Ccircle cx="67.8" cy="5.8" r="1.05"/%3E%3Ccircle cx="71.8" cy="2.7" r="0.69"/%3E%3Ccircle cx="75.3" cy="1.5" r="1.01"/%3E%3Ccircle cx="81.1" cy="5.1" r="0.78"/%3E%3Ccircle cx="88.8" cy="5.1" r="0.55"/%3E%3Ccircle cx="90.9" cy="5.4" r="0.83"/%3E%3Ccircle cx="99.4" cy="3.0" r="0.59"/%3E%3Ccircle cx="103.3" cy="4.8" r="0.71"/%3E%3Ccircle cx="106.3" cy="2.7" r="1.13"/%3E%3Ccircle cx="114.4" cy="1.7" r="0.70"/%3E%3Ccircle cx="116.9" cy="1.5" r="1.03"/%3E%3Ccircle cx="122.5" cy="3.8" r="0.82"/%3E%3Ccircle cx="127.9" cy="4.6" r="0.63"/%3E%3Ccircle cx="135.1" cy="1.7" r="0.80"/%3E%3Ccircle cx="138.5" cy="2.4" r="1.13"/%3E%3Ccircle cx="146.3" cy="2.6" r="1.08"/%3E%3Ccircle cx="149.1" cy="3.0" r="1.06"/%3E%3Ccircle cx="156.2" cy="1.7" r="1.14"/%3E%3Ccircle cx="159.7" cy="2.4" r="1.01"/%3E%3Ccircle cx="165.5" cy="2.6" r="0.59"/%3E%3Ccircle cx="169.8" cy="3.9" r="0.70"/%3E%3Ccircle cx="177.3" cy="2.9" r="0.82"/%3E%3C/svg%3E') repeat-x 0 0 / 180px 7px;
+          mask: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="180" height="7"%3E%3Ccircle cx="1.9" cy="3.8" r="1.10"/%3E%3Ccircle cx="7.3" cy="3.5" r="0.90"/%3E%3Ccircle cx="11.4" cy="3.6" r="0.93"/%3E%3Ccircle cx="19.2" cy="1.6" r="0.73"/%3E%3Ccircle cx="21.6" cy="4.9" r="0.97"/%3E%3Ccircle cx="26.6" cy="5.7" r="1.13"/%3E%3Ccircle cx="34.5" cy="4.0" r="0.64"/%3E%3Ccircle cx="37.1" cy="3.6" r="0.59"/%3E%3Ccircle cx="43.2" cy="2.3" r="0.57"/%3E%3Ccircle cx="49.6" cy="3.2" r="1.06"/%3E%3Ccircle cx="55.1" cy="4.1" r="0.85"/%3E%3Ccircle cx="61.0" cy="3.3" r="0.72"/%3E%3Ccircle cx="67.8" cy="5.8" r="1.05"/%3E%3Ccircle cx="71.8" cy="2.7" r="0.69"/%3E%3Ccircle cx="75.3" cy="1.5" r="1.01"/%3E%3Ccircle cx="81.1" cy="5.1" r="0.78"/%3E%3Ccircle cx="88.8" cy="5.1" r="0.55"/%3E%3Ccircle cx="90.9" cy="5.4" r="0.83"/%3E%3Ccircle cx="99.4" cy="3.0" r="0.59"/%3E%3Ccircle cx="103.3" cy="4.8" r="0.71"/%3E%3Ccircle cx="106.3" cy="2.7" r="1.13"/%3E%3Ccircle cx="114.4" cy="1.7" r="0.70"/%3E%3Ccircle cx="116.9" cy="1.5" r="1.03"/%3E%3Ccircle cx="122.5" cy="3.8" r="0.82"/%3E%3Ccircle cx="127.9" cy="4.6" r="0.63"/%3E%3Ccircle cx="135.1" cy="1.7" r="0.80"/%3E%3Ccircle cx="138.5" cy="2.4" r="1.13"/%3E%3Ccircle cx="146.3" cy="2.6" r="1.08"/%3E%3Ccircle cx="149.1" cy="3.0" r="1.06"/%3E%3Ccircle cx="156.2" cy="1.7" r="1.14"/%3E%3Ccircle cx="159.7" cy="2.4" r="1.01"/%3E%3Ccircle cx="165.5" cy="2.6" r="0.59"/%3E%3Ccircle cx="169.8" cy="3.9" r="0.70"/%3E%3Ccircle cx="177.3" cy="2.9" r="0.82"/%3E%3C/svg%3E') repeat-x 0 0 / 180px 7px;
+  opacity: .8;
 }
 h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: #F2F2F2; line-height: 1.35; }
 
@@ -194,10 +205,18 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
   padding: 7px 10px; border-radius: 999px;
   color: var(--text-color-1); background: var(--surface-2); border: 1px solid var(--line);
   cursor: default;
-  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
 /* Neutral hover (chips are labels, not links, so they stay out of the purple action color). */
 .chips li:hover { background: #34343A; border-color: #55555E; color: #fff; }
+
+/* Linked skills: every pill for the skill under the pointer lights up in teal (data color),
+   and the rest of the pills step back. */
+.chips li { transition: background-color .15s ease, border-color .15s ease, color .15s ease, opacity .2s ease; }
+.chips li.is-linked,
+.chips li.is-linked:hover {
+  background: rgba(3, 218, 197, 0.12); border-color: rgba(3, 218, 197, 0.6); color: #fff;
+}
+body.skills-linked .chips li:not(.is-linked) { opacity: .4; }
 
 /* ---------- Timeline (a real sequence, so it gets a line and markers) ---------- */
 .timeline { position: relative; }
@@ -225,6 +244,33 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 .tl-org { color: var(--text-muted); font-size: var(--fs-sm); margin-top: 2px; }
 .tl-points { margin: 14px 0 16px; max-width: 44em; }
 .tl-points li { position: relative; padding-left: 18px; margin-bottom: 6px; color: var(--text-color-1); }
+/* Workflow illustration for the Lead role: one input fanning out to its generated outputs.
+   Built from HTML so the labels stay crisp and reflow on phones. */
+.flow { margin: 2px 0 20px; }
+.flow-row { display: flex; align-items: center; }
+.flow-node {
+  display: inline-block; white-space: nowrap;
+  font-family: var(--font-mono); font-size: 0.8125rem; line-height: 16px;
+  padding: 7px 12px; border: 1px solid var(--line-strong); border-radius: var(--radius-small);
+  background: var(--surface); color: var(--text-color-1);
+}
+.flow-input { border-color: rgba(3, 218, 197, 0.55); }
+.flow-link { flex: 0 0 32px; height: 1px; background: var(--line-strong); }
+.flow-out { position: relative; padding-left: 24px; }
+.flow-out::before {          /* bracket joining the outputs, from first center to last center */
+  content: ""; position: absolute; left: 0; top: 20px; bottom: 20px; width: 1px;
+  background: var(--line-strong);
+}
+.flow-out li { position: relative; margin: 4px 0; }
+.flow-out li::before {       /* tick from the bracket to each output */
+  content: ""; position: absolute; left: -24px; top: 50%; width: 24px; height: 1px;
+  background: var(--line-strong);
+}
+.flow-out li::after {        /* teal point where each tick meets its output */
+  content: ""; position: absolute; left: -3px; top: calc(50% - 2px); width: 5px; height: 5px;
+  border-radius: 50%; background: var(--second-accent);
+}
+.flow figcaption { margin-top: 8px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-faint); }
 .tl-points li::before {
   content: ""; position: absolute; left: 2px; top: 0.72em; width: 5px; height: 5px;
   border-radius: 50%; background: var(--second-accent);
@@ -281,6 +327,7 @@ a:hover > .shot { border-color: var(--line-strong); filter: none; }
 .more-link { margin-top: 24px; font-size: var(--fs-sm); font-weight: 500; }
 
 /* ---------- Skills ---------- */
+.skills-note { margin: -18px 0 24px; color: var(--text-faint); }
 .skills { display: grid; gap: 22px; }
 .skill-group { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; align-items: start; }
 .skill-group dt { font-weight: 500; color: var(--text-muted); padding-top: 4px; }
@@ -340,6 +387,13 @@ a:hover > .shot { border-color: var(--line-strong); filter: none; }
     background: var(--line-strong);
   }
   .tl-item:first-child .tl-when::after { display: none; }
+
+  /* Workflow stacks: input on top, a short drop, then the outputs. */
+  .flow-row { flex-direction: column; align-items: flex-start; }
+  .flow-link { flex: 0 0 auto; width: 1px; height: 14px; margin-left: 20px; }
+  .flow-out { margin-left: 20px; }
+  .flow-out::before { top: 0; }
+  .flow-node { white-space: normal; }
 
   .projects { grid-template-columns: 1fr; gap: 12px; }
   .project-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
