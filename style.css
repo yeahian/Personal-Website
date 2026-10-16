@@ -197,18 +197,8 @@ main::before {
 /* Nav jumps land on the heading, not on the empty padding above it. */
 .section[id] { scroll-margin-top: calc(24px - var(--section-gap)); }
 .section h2 {
-  position: relative;
   font-size: var(--fs-xl); font-weight: 600; letter-spacing: -0.02em; color: #F2F2F2;
-  padding-bottom: 14px; margin-bottom: 36px;
-}
-/* Heading rule: a straight row of evenly spaced points, shaded with the torus colors
-   from teal to purple across the full width. */
-.section h2::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 4px;
-  background: linear-gradient(90deg, var(--second-accent), var(--accent-color));
-  -webkit-mask: radial-gradient(circle, #000 1.1px, transparent 1.6px) 0 50% / 6px 4px repeat-x;
-          mask: radial-gradient(circle, #000 1.1px, transparent 1.6px) 0 50% / 6px 4px repeat-x;
-  opacity: .85;
+  padding-bottom: 14px; margin-bottom: 36px; border-bottom: 1px solid var(--line);
 }
 h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: #F2F2F2; line-height: 1.35; }
 
