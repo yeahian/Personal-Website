@@ -128,24 +128,24 @@ a:hover { text-decoration: underline; }
 .hero {
   display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   align-items: center; gap: 48px;
-  padding-top: clamp(3rem, 7vw, 6rem);
-  padding-bottom: clamp(2rem, 4vw, 3rem);
+  padding-top: clamp(2.5rem, 5vw, 4.5rem);
+  padding-bottom: 0;   /* the next section's top padding sets the gap below */
 }
 
 .headshot {
   width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
-  border: 2px solid var(--line-strong); margin-bottom: 28px;
+  border: 2px solid var(--line-strong); margin-bottom: 24px;
 }
 
 .hero h1 {
   font-size: var(--fs-hero); font-weight: 700; line-height: 1.02; letter-spacing: -0.035em;
   color: #F2F2F2;
 }
-.hero-role { margin-top: 14px; font-size: var(--fs-md); font-weight: 500; color: var(--text-color-1); }
-.hero-summary { margin-top: 22px; max-width: 34em; color: var(--text-muted); }
+.hero-role { margin-top: 12px; font-size: var(--fs-md); font-weight: 500; color: var(--text-color-1); }
+.hero-summary { margin-top: 18px; max-width: 34em; color: var(--text-muted); }
 .hero-summary span { display: block; }   /* one idea per line, easy to scan */
 .hero-summary span + span { margin-top: 4px; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
 
 .hero-figure { position: relative; }
 #torus {
@@ -156,6 +156,11 @@ a:hover { text-decoration: underline; }
 .hero-figure figcaption {
   margin-top: 6px; color: var(--text-faint); text-align: center;
   max-width: 40em; margin-inline: auto;
+}
+/* Side by side, the caption hangs below the torus so the torus itself lines up
+   with the center of the text column. */
+@media (min-width: 901px) {
+  .hero-figure figcaption { position: absolute; top: 100%; left: 0; right: 0; }
 }
 
 /* Metadata (dates, venue, captions, labels) is set in mono, the editor-style accent. */
@@ -187,16 +192,20 @@ h3 { font-size: var(--fs-md); font-weight: 600; letter-spacing: -0.01em; color: 
 
 /* ---------- Timeline (a real sequence, so it gets a line and markers) ---------- */
 .timeline { position: relative; }
-.tl-item {
-  display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 32px;
-  position: relative; padding-bottom: 44px;
-}
-.tl-item:last-child { padding-bottom: 0; }
+.tl-item { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 32px; }
 .tl-when { color: var(--second-accent); padding-top: 14px; }   /* centered on the 48px logo row */
-.tl-body { position: relative; padding-left: 28px; border-left: 1px solid var(--line-strong); }
-.tl-item:last-child .tl-body { border-left-color: transparent; }
+/* The spacing between entries lives inside .tl-body, so each entry's line segment
+   runs into the next one. The line starts at the first dot and ends at the last. */
+.tl-body { position: relative; padding-left: 28px; padding-bottom: 44px; }
+.tl-item:last-child .tl-body { padding-bottom: 0; }
+.tl-body::after {
+  content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px;
+  background: var(--line-strong);
+}
+.tl-item:first-child .tl-body::after { top: 23px; }
+.tl-item:last-child .tl-body::after { bottom: auto; height: 23px; }
 .tl-body::before {
-  content: ""; position: absolute; left: -6px; top: 18px;
+  content: ""; position: absolute; left: -6px; top: 18px; z-index: 1;
   width: 11px; height: 11px; border-radius: 50%;
   background: var(--main-color); border: 2px solid var(--second-accent);
 }
@@ -306,9 +315,15 @@ a:hover > .shot { border-color: var(--line-strong); filter: none; }
   .nav-links a.active { box-shadow: none; color: var(--accent-color); }
   .nav-links .btn { margin-top: 10px; }
 
-  .tl-item { grid-template-columns: 1fr; gap: 4px; padding-bottom: 36px; }
-  .tl-when { padding-left: 28px; border-left: 1px solid var(--line-strong); padding-top: 0; padding-bottom: 4px; }
-  .tl-item:last-child .tl-when { border-left-color: var(--line-strong); }
+  /* Date sits above the entry, so the line runs through the date row too. */
+  .tl-item { grid-template-columns: 1fr; gap: 0; }
+  .tl-body { padding-bottom: 36px; }
+  .tl-when { position: relative; padding: 0 0 8px 28px; }
+  .tl-when::after {
+    content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px;
+    background: var(--line-strong);
+  }
+  .tl-item:first-child .tl-when::after { display: none; }
 
   .projects { grid-template-columns: 1fr; gap: 12px; }
   .project-gallery { grid-template-columns: 1fr 1fr; gap: 12px; }
