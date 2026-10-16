@@ -1,0 +1,27 @@
+# Ian Dahlin
+
+> Lead Software Engineer at Brooks Building Solutions (Jacksonville, Florida). Builds desktop applications, automation platforms, and engineering-grade simulation tools. Co-author of TopoRec (IEEE/CVF WACV 2026). B.S. in Computer Science, University of North Florida, May 2025 (AI & Machine Learning concentration).
+
+## Experience
+- Lead Software Engineer, Brooks Building Solutions (Nov 2025 – present): leads an engineering team building a C#/.NET desktop application that generates HVAC unit schematic and wiring diagrams, bills of materials, parts and points lists, and sequences of operation; architects engineering simulation tools.
+- Software Engineer, Brooks Building Solutions (Jul 2025 – Nov 2025): internal tools and web applications that automate company processes; reusable diagram tools and templates.
+- Machine Learning Research Assistant, University of North Florida (Aug 2024 – May 2025): 3D object classification on LiDAR point clouds (PointNet, PointNet++), 91% accuracy; co-developed TopoRec.
+
+## Publication
+- [TopoRec: Point Cloud Recognition Using Topological Data Analysis](https://arxiv.org/abs/2506.18725), IEEE/CVF WACV 2026, co-author.
+
+## Projects
+- AeroAtlas: LLM-powered travel itinerary planner; Audience Choice Award, UNF School of Computing Symposium.
+- [Object detection on a Raspberry Pi](https://github.com/Teseife/Custom-YOLOv5-RaspberryPi): custom YOLOv5 + OpenCV on low-power hardware.
+- [Rapidly-exploring random trees](https://github.com/yeahian/Rapidly-Exploring-Random-Trees): path planning through obstacle courses.
+
+## Skills
+- Languages: C#, Java, Python, C, SQL, MATLAB, XAML, HTML, CSS
+- Frameworks & libraries: .NET, React, PyTorch, TensorFlow, Scikit-learn, Pandas, NumPy, Open3D
+- Tools & platforms: Git, GitHub, AutoCAD, Blender, Linux, Unix, LiDAR processing
+
+## Links
+- [Resume (PDF)](https://yeahian.github.io/Personal-Website/assets/docs/Ian-Dahlin-Resume.pdf)
+- [LinkedIn](https://www.linkedin.com/in/ian-dahlin)
+- [GitHub](https://github.com/yeahian)
+- Email: dahlinia4@gmail.com
