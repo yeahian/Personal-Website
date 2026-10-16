@@ -44,6 +44,25 @@
   window.addEventListener("scroll", queueSpy, { passive: true });
   window.addEventListener("resize", queueSpy);
 
+  /* ---------- Copy email ---------- */
+  document.querySelectorAll("[data-copy]").forEach((btn) => {
+    const label = btn.textContent;
+    btn.addEventListener("click", async () => {
+      const text = btn.getAttribute("data-copy");
+      let ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; } catch (_) {
+        // Older browsers or blocked clipboard: fall back to a hidden selection.
+        const ta = Object.assign(document.createElement("textarea"), { value: text });
+        ta.style.cssText = "position:fixed;opacity:0"; document.body.append(ta); ta.select();
+        try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
+        ta.remove();
+      }
+      btn.textContent = ok ? "Copied" : text;   // if copying fails, at least show the address
+      clearTimeout(btn._reset);
+      btn._reset = setTimeout(() => { btn.textContent = label; }, 1800);
+    });
+  });
+
   /* ---------- Linked skills: point at a pill to light up everywhere that skill appears ---------- */
   const chipKey = (li) => li.textContent.trim().toLowerCase();
   const chips = [...document.querySelectorAll(".chips li")];
