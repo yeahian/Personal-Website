@@ -13,7 +13,7 @@ index.html                  page content and structured data (JSON-LD)
 style.css                   layout and theme (colors are the variables at the top)
 script.js                   mobile menu, active-section nav, hero point-cloud torus
 llms.txt                    plain-text profile summary for AI agents
-assets/fonts/               IBM Plex Sans (self-hosted, SIL Open Font License)
+assets/fonts/               IBM Plex Sans and Plex Mono (self-hosted, SIL Open Font License)
 assets/docs/                resume PDF linked from the site
 images/                     headshot, research figure, favicons, social preview image (og-image.png)
 ```
