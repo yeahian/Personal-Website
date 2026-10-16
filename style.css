@@ -137,6 +137,8 @@ a:hover { text-decoration: underline; }
 }
 .hero-role { margin-top: 14px; font-size: var(--fs-md); font-weight: 500; color: var(--accent-color); }
 .hero-summary { margin-top: 22px; max-width: 34em; color: var(--text-muted); }
+.hero-summary span { display: block; }   /* one idea per line, easy to scan */
+.hero-summary span + span { margin-top: 4px; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 
 .hero-figure { position: relative; }
