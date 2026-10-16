@@ -4,7 +4,7 @@
 
 ## Experience
 - Lead Software Engineer, Brooks Building Solutions (Nov 2025 – present): leads an engineering team building a C#/.NET desktop application that generates HVAC unit schematic and wiring diagrams, bills of materials, parts and points lists, and sequences of operation; architects engineering simulation tools.
-- Software Engineer, Brooks Building Solutions (Jul 2025 – Nov 2025): internal tools and web applications that automate company processes; reusable diagram tools and templates.
+- Software Engineer, Brooks Building Solutions (May 2025 – Nov 2025): internal tools and web applications that automate company processes; reusable diagram tools and templates.
 - Machine Learning Research Assistant, University of North Florida (Aug 2024 – May 2025): 3D object classification on LiDAR point clouds (PointNet, PointNet++), 91% accuracy; co-developed TopoRec.
 
 ## Publication
